@@ -2,16 +2,23 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Flipbook Ikatan Kimia SMA</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,500;0,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,500;0,600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,500;0,600&display=swap" rel="stylesheet"></noscript>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+/* Deteksi iOS untuk optimasi khusus */
 :root{--b0:#08202f;--b1:#0f3d5c;--b2:#1a6496;--b3:#2980b9;--b4:#5dade2;--b5:#aed6f1;--b6:#d6eaf8;--b7:#eaf4fb;--white:#ffffff;--paper:#f8fcff;--flip-dur:0.45s;--flip-ease:cubic-bezier(.645,.045,.355,1);}
 html,body{height:100%;font-family:'Nunito',sans-serif;background:linear-gradient(150deg,#bcd9ee 0%,#dff0fb 45%,#b5d4eb 100%);overflow-x:hidden;-webkit-user-select:none;user-select:none;}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 15% 25%,rgba(41,128,185,.09) 0%,transparent 55%),radial-gradient(ellipse at 85% 75%,rgba(26,100,150,.11) 0%,transparent 55%);}
+/* Hapus radial-gradient berat di body::before — berat di iOS GPU */
+body::before{content:none;}
 /* HEADER */
-header{position:sticky;top:0;z-index:300;background:linear-gradient(95deg,#060f18 0%,var(--b1) 55%,var(--b2) 100%);box-shadow:0 3px 24px rgba(8,32,47,.5);display:flex;align-items:center;justify-content:space-between;padding:10px 24px;gap:10px;min-height:54px;flex-wrap:wrap;}
+header{position:relative;z-index:300;background:linear-gradient(95deg,#060f18 0%,var(--b1) 55%,var(--b2) 100%);box-shadow:0 3px 24px rgba(8,32,47,.5);display:flex;align-items:center;justify-content:space-between;padding:10px 24px;gap:10px;min-height:54px;flex-wrap:wrap;}
 .hd-brand-wrap{display:flex;flex-direction:column;flex:1;min-width:160px;}
 .hd-brand{font-family:'Lora',serif;font-size:1.05rem;font-weight:600;color:var(--white);letter-spacing:.3px;line-height:1.2;}
 .hd-sub{font-size:.6rem;color:var(--b5);letter-spacing:.4px;margin-top:1px;}
@@ -76,12 +83,13 @@ main{position:relative;z-index:1;display:flex;flex-direction:column;align-items:
 .spine{flex-shrink:0;position:relative;z-index:10;width:7px;background:linear-gradient(to right,rgba(0,0,0,.25) 0%,rgba(255,255,255,.4) 35%,rgba(255,255,255,.15) 65%,rgba(0,0,0,.25) 100%);box-shadow:-2px 0 6px rgba(0,0,0,.15),2px 0 6px rgba(0,0,0,.15);}
 .pface{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--paper);opacity:0;transition:opacity .1s;overflow:hidden;}
 .pface.vis{opacity:1;}
-.pface img,.pface video{width:100%;height:100%;object-fit:fill;display:block;}
+.pface img{width:100%;height:100%;object-fit:fill;display:block;}
 .pface-blank{width:100%;height:100%;background:linear-gradient(135deg,var(--b7),var(--b6));}
-.flip-card{position:absolute;top:0;transform-style:preserve-3d;z-index:200;pointer-events:none;}
-.fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:var(--paper);}
-.fc-front{transform:rotateY(0deg);}
-.fc-back{transform:rotateY(180deg);}
+/* FLIP CARD — gunakan opacity+translate bukan preserve-3d (lebih ringan di iOS) */
+.flip-card{position:absolute;top:0;z-index:200;pointer-events:none;overflow:hidden;background:var(--paper);}
+.fc-face{position:absolute;inset:0;overflow:hidden;background:var(--paper);}
+.fc-front{opacity:1;}
+.fc-back{opacity:0;}
 .fc-face img,.fc-face video{width:100%;height:100%;object-fit:fill;display:block;}
 .fc-curl{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:0;transition:opacity .1s;background:linear-gradient(to left,rgba(0,0,0,.13) 0%,transparent 60%);}
 .flip-card.going .fc-curl{opacity:1;}
@@ -199,7 +207,7 @@ main{position:relative;z-index:1;display:flex;flex-direction:column;align-items:
 @media(max-width:640px){main{padding-left:44px;padding-right:44px;}.nav-prev{left:-40px;}.nav-next{right:-40px;}.hd-badge{display:none;}header{flex-direction:column;}.hd-info{width:100%;justify-content:center;}}
 footer{position:relative;z-index:1;text-align:center;padding:8px;font-size:.6rem;color:var(--b2);opacity:.65;}
 /* ZOOM CONTROLS */
-.zoom-bar{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1.5px solid rgba(41,128,185,.18);border-radius:30px;padding:4px 10px;box-shadow:0 3px 14px rgba(8,32,47,.12);position:relative;z-index:10;}
+.zoom-bar{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.92);border:1.5px solid rgba(41,128,185,.18);border-radius:30px;padding:4px 10px;box-shadow:0 3px 14px rgba(8,32,47,.12);position:relative;z-index:10;}
 .zoom-btn{width:32px;height:32px;border-radius:50%;border:none;background:var(--b6);color:var(--b1);font-size:1.1rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s,transform .15s;line-height:1;flex-shrink:0;}
 .zoom-btn:hover{background:var(--b3);color:var(--white);transform:scale(1.1);}
 .zoom-btn:active{transform:scale(.95);}
@@ -260,7 +268,7 @@ footer{position:relative;z-index:1;text-align:center;padding:8px;font-size:.6rem
     <div class="menu-card" onclick="openFlipbook(1)">
       <div class="menu-card-thumb">
         <span class="menu-card-thumb-fallback">🔗</span>
-        <img src="19.png" alt="Sub Bab 2" onerror="this.style.display='none'">
+        <img src="18.png" alt="Sub Bab 2" onerror="this.style.display='none'">
       </div>
       <div class="menu-card-body">
         <div class="menu-card-title">Sub Bab 2</div>
@@ -270,7 +278,7 @@ footer{position:relative;z-index:1;text-align:center;padding:8px;font-size:.6rem
     <div class="menu-card" onclick="openFlipbook(2)">
       <div class="menu-card-thumb">
         <span class="menu-card-thumb-fallback">🧬</span>
-        <img src="28.png" alt="Sub Bab 3" onerror="this.style.display='none'">
+        <img src="27.png" alt="Sub Bab 3" onerror="this.style.display='none'">
       </div>
       <div class="menu-card-body">
         <div class="menu-card-title">Sub Bab 3</div>
@@ -685,12 +693,19 @@ const allSoal=quizDataAll.flat().slice(0,20);
 const TOTAL_SOAL=20;
 const quiz={data:allSoal,att:new Array(TOTAL_SOAL).fill(0),done:new Array(TOTAL_SOAL).fill(false),ok:new Array(TOTAL_SOAL).fill(false),sel:new Array(TOTAL_SOAL).fill(null),cur:0,built:false};
 
-/* BOOK STATE */
-let curSubBab=-1,PAGES=[],SPREADS=[],TOTAL=0,curSpread=0,flipping=false,dragDX=0;
+/* DETEKSI iOS */
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+// iOS: nonaktifkan animasi flip berat, gunakan transisi sederhana
+if(isIOS){
+  document.documentElement.style.setProperty('--flip-dur','0.22s');
+  document.documentElement.style.setProperty('--flip-ease','ease-out');
+}
 let bookWrapEl=null,leftSideEl=null,rightSideEl=null,curLF=null,curRF=null,prevBtn=null,nextBtn=null;
 let activeView='menu';
 
-/* VIEW SWITCHING */
+/* BOOK STATE */
+let curSubBab=-1,PAGES=[],SPREADS=[],TOTAL=0,curSpread=0,flipping=false,dragDX=0;
 function showView(v){
   if(v!=='flipbook') pauseAllVideos();
   activeView=v;
@@ -951,55 +966,65 @@ function pageSize(){
 
 /* MAKE FACE */
 function makeFace(pi,w,h){
-  const face=document.createElement('div');face.className='pface';face.style.cssText=`width:${w}px;height:${h}px;`;
-  if(pi===null){const b=document.createElement('div');b.className='pface-blank';face.appendChild(b);}
-  else{
+  const face=document.createElement('div');
+  face.className='pface';
+  face.style.cssText=`width:${w}px;height:${h}px;`;
+  if(pi===null){
+    const b=document.createElement('div');b.className='pface-blank';face.appendChild(b);
+  } else {
     const p=PAGES[pi];
     if(p.type==='img'){
       const img=document.createElement('img');
       img.alt='Halaman '+(pi+1);
-      img.loading='lazy';
       img.decoding='async';
       img.src=p.src;
       face.appendChild(img);
     } else if(p.type==='video'){
+      // Bungkus video dalam container agar mudah dikontrol
+      const vWrap=document.createElement('div');
+      vWrap.setAttribute('data-video-wrap','1');
+      vWrap.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:5;pointer-events:auto;';
+
       const v=document.createElement('video');
       v.controls=true;
-      v.preload='metadata';        // metadata agar durasi terbaca
+      v.preload='none';
       v.setAttribute('playsinline','');
-      v.setAttribute('controlslist','nodownload');
       v.setAttribute('webkit-playsinline','');
-      // Pastikan video mengisi halaman dan tidak dihalangi apapun
-      v.style.cssText='width:100%;height:100%;object-fit:contain;display:block;position:relative;z-index:10;pointer-events:auto;';
-      const src=document.createElement('source');src.src=p.src;src.type='video/mp4';
-      v.appendChild(src);
-      face.appendChild(v);
-      // Pastikan pface video punya pointer-events
-      face.style.pointerEvents='auto';
+      v.setAttribute('x-webkit-airplay','allow');
+      // Jangan pakai inline style yang menimpa CSS class
+      v.style.cssText='width:100%;height:100%;display:block;';
+      v.src=p.src;
+
+      // Fallback: tampilkan pesan jika video tidak bisa diload
+      v.addEventListener('error',()=>{
+        vWrap.innerHTML='<div style="color:#fff;text-align:center;padding:20px;font-size:.8rem;">⚠️ Video tidak dapat dimuat.<br>Pastikan file <b>'+p.src+'</b><br>ada di folder yang sama.</div>';
+      });
+
+      vWrap.appendChild(v);
+      face.appendChild(vWrap);
+      // Override pface style agar tidak menutupi video
+      face.style.cssText=face.style.cssText+'pointer-events:auto;background:#000;';
     }
   }
   return face;
 }
 
-/* PAUSE semua video aktif (panggil sebelum flip) */
+/* PAUSE semua video */
 function pauseAllVideos(){
   document.querySelectorAll('video').forEach(v=>{
-    if(!v.paused){v.pause();}
+    try{ if(!v.paused) v.pause(); }catch(e){}
   });
 }
 
-/* DRAG ZONE */
-function makeDZ(side,w,h){
-  const dz=document.createElement('div');dz.className='drag-zone';dz.style.cssText=`width:${w}px;height:56px;bottom:0;left:0;position:absolute;z-index:50;`;
-
-  // Jika halaman ini berisi video, drag zone tidak perlu (video punya kontrol sendiri di bawah)
-  const curIdx = side==='right' ? SPREADS[curSpread][1] : SPREADS[curSpread][0];
-  if(curIdx!==null && PAGES[curIdx] && PAGES[curIdx].type==='video'){
-    dz.style.pointerEvents='none'; // tidak menghalangi kontrol video
-    dz.style.zIndex='1';
-    return dz;
+/* DRAG ZONE — pageIdx: index halaman yang ditampilkan di sisi ini */
+function makeDZ(side, w, h, pageIdx){
+  // Jika halaman ini video: kembalikan div kosong tanpa pointer-events
+  if(pageIdx!==null && PAGES[pageIdx] && PAGES[pageIdx].type==='video'){
+    const empty=document.createElement('div');
+    empty.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:0;';
+    return empty;
   }
-
+  const dz=document.createElement('div');dz.className='drag-zone';dz.style.cssText=`width:${w}px;height:56px;bottom:0;left:0;position:absolute;z-index:50;`;
   const peel=document.createElement('div');peel.className=`peel peel-${side==='right'?'r':'l'}`;dz.appendChild(peel);
   const hint=document.createElement('span');hint.className=`dz-hint dz-hint-${side==='right'?'r':'l'}`;hint.textContent=side==='right'?'Berikutnya':'Sebelumnya';dz.appendChild(hint);
   let downX=null;
@@ -1011,21 +1036,65 @@ function makeDZ(side,w,h){
 
 function tryFlip(dir){if(flipping) return;if(dir==='fwd'&&curSpread>=TOTAL-1) return;if(dir==='back'&&curSpread<=0) return;pauseAllVideos();doFlip(dir);}
 function doFlip(dir){
-  flipping=true;const{w,h}=pageSize();const from=curSpread;const to=dir==='fwd'?curSpread+1:curSpread-1;
-  const[cL,cR]=SPREADS[from];const[nL,nR]=SPREADS[to];
-  const card=document.createElement('div');card.className='flip-card';card.style.cssText=`width:${w}px;height:${h}px;`;
+  flipping=true;
+  const{w,h}=pageSize();
+  const from=curSpread;
+  const to=dir==='fwd'?curSpread+1:curSpread-1;
+  const[cL,cR]=SPREADS[from];
+  const[nL,nR]=SPREADS[to];
+
+  // Buat flip card dengan animasi slide sederhana (ringan di iOS)
+  const card=document.createElement('div');
+  card.className='flip-card';
+  card.style.cssText=`width:${w}px;height:${h}px;`;
+
   const front=document.createElement('div');front.className='fc-face fc-front';front.style.cssText=`width:${w}px;height:${h}px;`;
   const back=document.createElement('div');back.className='fc-face fc-back';back.style.cssText=`width:${w}px;height:${h}px;`;
   const curl=document.createElement('div');curl.className='fc-curl';
-  if(dir==='fwd'){const ff=makeFace(cR,w,h);ff.classList.add('vis');front.appendChild(ff);const bf=makeFace(nL,w,h);bf.classList.add('vis');back.appendChild(bf);front.appendChild(curl);const lo=(cL===null)?0:w+7;card.style.cssText+=`left:${lo}px;top:0;transform-origin:left center;transform:rotateY(0deg);`;if(curRF) curRF.classList.remove('vis');}
-  else{const ff=makeFace(nR,w,h);ff.classList.add('vis');front.appendChild(ff);const bf=makeFace(cL,w,h);bf.classList.add('vis');back.appendChild(bf);front.appendChild(curl);card.style.cssText+=`left:0;top:0;transform-origin:right center;transform:rotateY(-180deg);`;if(curLF) curLF.classList.remove('vis');}
+
+  const dur=isIOS?180:parseInt(getComputedStyle(document.documentElement).getPropertyValue('--flip-dur'))*1000||450;
+
+  if(dir==='fwd'){
+    const ff=makeFace(cR,w,h);ff.classList.add('vis');front.appendChild(ff);
+    const bf=makeFace(nL,w,h);bf.classList.add('vis');back.appendChild(bf);
+    front.appendChild(curl);
+    const lo=(cL===null)?0:w+7;
+    card.style.left=lo+'px';card.style.top='0';
+    // Mulai dari posisi normal, slide ke kiri
+    card.style.transform='translateX(0)';
+    card.style.opacity='1';
+    if(curRF) curRF.classList.remove('vis');
+  } else {
+    const ff=makeFace(nR,w,h);ff.classList.add('vis');front.appendChild(ff);
+    const bf=makeFace(cL,w,h);bf.classList.add('vis');back.appendChild(bf);
+    front.appendChild(curl);
+    card.style.left='0';card.style.top='0';
+    card.style.transform='translateX(0)';
+    card.style.opacity='1';
+    if(curLF) curLF.classList.remove('vis');
+  }
+
   card.appendChild(front);card.appendChild(back);bookWrapEl.appendChild(card);
-  requestAnimationFrame(()=>{card.classList.add('going');card.style.transition=`transform var(--flip-dur) var(--flip-ease)`;card.style.transform=dir==='fwd'?'rotateY(-180deg)':'rotateY(0deg)';});
-  card.addEventListener('transitionend',()=>{
-    // bersihkan card animasi dari DOM setelah selesai (bebaskan memori)
+
+  // Animasi: front fade out, back fade in
+  front.style.transition=`opacity ${dur}ms ease`;
+  back.style.transition=`opacity ${dur}ms ease`;
+  back.style.opacity='0';
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      card.classList.add('going');
+      front.style.opacity='0';
+      back.style.opacity='1';
+    });
+  });
+
+  setTimeout(()=>{
     card.remove();
-    curSpread=to;flipping=false;renderBook();
-  },{once:true});
+    curSpread=to;
+    flipping=false;
+    renderBook();
+  }, dur+30);
 }
 
 /* TOUCH */
@@ -1047,8 +1116,9 @@ function setupTouchSwipe(){
 
   const skipTags=['input','label','button','video','select','textarea','source'];
   function isVideoArea(e){
-    // skip jika klik di video atau dalam 20px dari tepi video (kontrol)
-    return e.target.closest('video')!==null || skipTags.includes(e.target.tagName.toLowerCase());
+    return e.target.closest('video')!==null ||
+           e.target.closest('[data-video-wrap]')!==null ||
+           skipTags.includes(e.target.tagName.toLowerCase());
   }
   if(leftSideEl) leftSideEl.addEventListener('click',e=>{
     if(isVideoArea(e)) return;
@@ -1076,16 +1146,16 @@ function renderBook(){
   const[li,ri]=SPREADS[curSpread];const isCover=li===null;const isSingleL=ri===null;
   if(isCover){
     rightSideEl=document.createElement('div');rightSideEl.className='bside bside-right';rightSideEl.style.cssText=`width:${w}px;height:${h}px;border-radius:3px;box-shadow:8px 0 30px rgba(0,0,0,.3),-2px 0 8px rgba(0,0,0,.1);`;
-    curRF=makeFace(ri,w,h);curRF.classList.add('vis');rightSideEl.appendChild(curRF);rightSideEl.appendChild(makeDZ('right',w,h));leftSideEl=null;curLF=null;bookWrapEl.appendChild(rightSideEl);
+    curRF=makeFace(ri,w,h);curRF.classList.add('vis');rightSideEl.appendChild(curRF);rightSideEl.appendChild(makeDZ('right',w,h,ri));leftSideEl=null;curLF=null;bookWrapEl.appendChild(rightSideEl);
   } else if(isSingleL){
     leftSideEl=document.createElement('div');leftSideEl.className='bside bside-left';leftSideEl.style.cssText=`width:${w}px;height:${h}px;border-radius:3px;box-shadow:-8px 0 30px rgba(0,0,0,.3),2px 0 8px rgba(0,0,0,.1);`;
-    curLF=makeFace(li,w,h);curLF.classList.add('vis');leftSideEl.appendChild(curLF);leftSideEl.appendChild(makeDZ('left',w,h));rightSideEl=null;curRF=null;bookWrapEl.appendChild(leftSideEl);
+    curLF=makeFace(li,w,h);curLF.classList.add('vis');leftSideEl.appendChild(curLF);leftSideEl.appendChild(makeDZ('left',w,h,li));rightSideEl=null;curRF=null;bookWrapEl.appendChild(leftSideEl);
   } else {
     leftSideEl=document.createElement('div');leftSideEl.className='bside bside-left';leftSideEl.style.cssText=`width:${w}px;height:${h}px;`;
     const spEl=document.createElement('div');spEl.className='spine';spEl.style.height=h+'px';
     rightSideEl=document.createElement('div');rightSideEl.className='bside bside-right';rightSideEl.style.cssText=`width:${w}px;height:${h}px;`;
     curLF=makeFace(li,w,h);curLF.classList.add('vis');curRF=makeFace(ri,w,h);curRF.classList.add('vis');
-    leftSideEl.appendChild(curLF);leftSideEl.appendChild(makeDZ('left',w,h));rightSideEl.appendChild(curRF);rightSideEl.appendChild(makeDZ('right',w,h));
+    leftSideEl.appendChild(curLF);leftSideEl.appendChild(makeDZ('left',w,h,li));rightSideEl.appendChild(curRF);rightSideEl.appendChild(makeDZ('right',w,h,ri));
     bookWrapEl.appendChild(leftSideEl);bookWrapEl.appendChild(spEl);bookWrapEl.appendChild(rightSideEl);
   }
 
